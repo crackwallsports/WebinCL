@@ -111,6 +111,7 @@
 *** Template
 - [[./templates/layout.lisp][layout.lisp]]
 - [[./templates/index.lisp][index.lisp]]
+- [[./templates/register.lisp][register.lisp]]
 ** DB
 - src/db.lisp
 

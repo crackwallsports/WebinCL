@@ -8,19 +8,21 @@
     (layout-template)
     ,(merge-args
       *args*
-      `(:title "Index"
-               :links `(,(getf *web-links* :main-css))
-               :head-rest
-               `((style ()
-                        ,(->css
-                          '(h1 (:color "red")))))
-               :scripts `()
-               :content
-               `((h1 () ,title)
-                 (p () ,#?"欢迎你到 ${title}")
-                 (div () 
-                      (a (:href "/login") "登录")
-                      (a (:href "/register") "注册")))))))
+      `(:title
+        "Index"
+        :links
+        `(,(getf *web-links* :main-css))
+        :head-rest
+        `((style ()
+                 ,(->css
+                   '(h1 (:color "red")))))
+        :scripts `()
+        :content
+        `((h1 () ,title)
+          (p () ,#?"欢迎你到 ${title}")
+          (div () 
+               (a (:href "/login") "登录")
+               (a (:href "/register") "注册")))))))
 
 (defun index-page ()
   (index-page-mac))

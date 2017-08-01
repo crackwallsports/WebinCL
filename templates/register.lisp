@@ -82,20 +82,24 @@
     ,(merge-args
       *args*
       `(:title
-        "Index"
-        :links `(,(getf *web-links* :bs-css)
-                  ,(getf *web-links* :main-css))
-        :head-rest `((style
-                      ()
-                      ,(->css
-                        '((".form-horizontal .form-group" (:margin "15px"))
-                          (".panel-title" (:text-align "center"
-                                  :font-size "18px"
-                                  :font-weight "600"))))))
+        "Register"
+        :links
+        `(,(getf *web-links* :bs-css)
+           ,(getf *web-links* :main-css))
+        :head-rest
+        `((style
+           ()
+           ,(->css
+             '((".form-horizontal" ()
+                (".form-group" (:margin "15px")))
+               (".panel-title" (:text-align "center"
+                                :font-size "18px"
+                                :font-weight "600"))))))
         :content ,*register-html-content*
-        :scripts `(,(getf *web-links* :jq-js)
-                    ,(getf *web-links* :bs-js)
-                    (script () ,*register-js*))))))
+        :scripts
+        `(,(getf *web-links* :jq-js)
+           ,(getf *web-links* :bs-js)
+           (script () ,*register-js*))))))
 
 (defun register-page ()
   (register-page-mac))
