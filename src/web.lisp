@@ -19,21 +19,32 @@
 ;; Routing rules
 ;; GET / 
 (defroute "/" ()
-  ;; (render #P"index.html")
-  (lisp-render "index" '(:title "主页")))
+  (lisp-render "index" '(:title "首页")))
 
 ;; GET /login
 (defroute "/login" ()
-  (lisp-render "login" '(:title "登录")))
+  (redirect "/")
+  ;; (lisp-render "login" '(:title "登录"))
+  )
 
 ;; GET /register
 (defroute "/register" ()
   (lisp-render "register" '(:title "注册")))
+;; POST /register
+(defroute ("/register" :method :POST) (&key |uname| |upwd|)
+  (if (and (equal |uname| "me")
+           (equal |upwd| "pwd"))
+      (progn (gethash :error *session* "成功")
+             (setf (response-status *response*) 200)
+             "")
+      (progn (gethash :error *session* "失败")
+             (setf (response-status *response*) 500)
+             "")))
 
 ;; GET /home
 (defroute "/home" ()
   ;; if req.session.user
-  (lisp-render "home" '(:title "用户XXX"))
+  (lisp-render "home" '(:title "主页"))
   ;; else -> /login
   )
 
@@ -42,10 +53,11 @@
   ;; -> /
   )
 
+
 ;;
 ;; Error pages
 (defmethod on-exception ((app <web>) code)
   (declare (ignore app))
-  "error"
+  #?"ERROR: ${code}"
   ;; (lisp-render (error-page code))
   )

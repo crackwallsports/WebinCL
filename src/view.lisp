@@ -6,6 +6,12 @@
   (:import-from :caveman2
                 :*response*
                 :response-headers)
+  (:import-from :parenscript
+                :ps
+                :chain
+                :@
+                :create
+                :var)
   (:import-from :datafly
                 :encode-json)
   (:export :lisp-render

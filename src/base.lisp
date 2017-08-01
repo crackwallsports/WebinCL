@@ -20,11 +20,28 @@
 (defun concat (&rest rest)
   (join-string-list rest :join ""))
 
-
 (defun join-string-list (ls &key (join " "))
   "list -(Concat by str)-> strings"
   (let ((str (concatenate 'string "~{~A~^" join "~}")))
     (format nil str ls)))
+
+(defmacro case-str (str &body body)
+  `(cond
+     ,@(loop for pair in body
+          collect
+            (let ((s (car pair))
+                  (e (cadr pair)))
+              (cond
+                ((stringp s)
+                 (list `(string-equal ,str ,s) e))
+                ((listp s)
+                 (list
+                  `(or ,@(loop for i in s
+                            collect `(string-equal ,str ,i)))
+                  e))
+                ((eql s 't)
+                 (list 't e))
+                (t (error "is not a string or list")))))))
 
 (defun make-keyword (name)
   (values (intern (string-upcase name) "KEYWORD")))  
@@ -60,8 +77,8 @@
                                 :result " ~A"
                                 :att-val "~(~A~)=\"~A\""
                                 :separator " ")))
-    (case tag
-      ((meta br link input)
+    (case-str (symbol-name tag)
+      (("meta" "br" "link" "input")
        (format nil "<~(~A~)~A>~A~%" tag fatt "~A"))
       (t
        (format nil "<~(~A~)~A>~A</~(~A~)>~%" tag fatt "~A" tag)))))

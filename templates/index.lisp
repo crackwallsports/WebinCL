@@ -9,11 +9,11 @@
     ,(merge-args
       *args*
       `(:title "Index"
-               :links '()
+               :links `(,(getf *web-links* :main-css))
                :head-rest
                `((style ()
-                       ,(->css
-                         '(h1 (:color "grey")))))
+                        ,(->css
+                          '(h1 (:color "red")))))
                :scripts `()
                :content
                `((h1 () ,title)
