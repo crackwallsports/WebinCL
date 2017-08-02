@@ -23,9 +23,20 @@
 
 ;; GET /login
 (defroute "/login" ()
-  (redirect "/")
-  ;; (lisp-render "login" '(:title "登录"))
-  )
+  (lisp-render "login" '(:title "登录")))
+;; POST /login
+(defroute ("/login" :method :POST) (&key |uname| |upwd|)
+  (if (equal |uname| "me")
+      (if (equal |upwd| "pwd")
+          (progn (setf (gethash :user *session*) "me")
+                 (setf (response-status *response*) 200)
+                 "")
+          (progn (setf (gethash :error *session*) "密码错误")
+                 (setf (response-status *response*) 500)
+                 ""))
+      (progn (setf (gethash :error *session*) "用户名错误")
+             (setf (response-status *response*) 500)
+             "")))
 
 ;; GET /register
 (defroute "/register" ()
@@ -34,23 +45,27 @@
 (defroute ("/register" :method :POST) (&key |uname| |upwd|)
   (if (and (equal |uname| "me")
            (equal |upwd| "pwd"))
-      (progn (gethash :error *session* "成功")
+      (progn (setf (gethash :error *session*) "成功")
              (setf (response-status *response*) 200)
              "")
-      (progn (gethash :error *session* "失败")
+      (progn (setf (gethash :error *session*) "失败")
              (setf (response-status *response*) 500)
              "")))
 
 ;; GET /home
 (defroute "/home" ()
-  ;; if req.session.user
-  (lisp-render "home" '(:title "主页"))
-  ;; else -> /login
+  (if (gethash :user *session*)
+      (lisp-render "home" `(:title "主页" :user ,(gethash :user *session*)))
+      (progn (setf (gethash :error *session*) "请登录")
+             (redirect "/login")
+             ""))
   )
 
 ;; GET /logout
 (defroute "/logout" ()
-  ;; -> /
+  (setf (gethash :user *session*) nil)
+  (setf (gethash :error *session*) nil)
+  (redirect "/")
   )
 
 

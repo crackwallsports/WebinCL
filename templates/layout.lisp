@@ -1,4 +1,6 @@
 (in-package :webtest.view)
+(interpol:enable-interpol-syntax)
+(cl-syntax:use-syntax :interpol)  
 
 (defmacro layout-template ()
   ``(,,(doctype)
@@ -15,7 +17,7 @@
             (body () ,@content ,@scripts))))
 
 
-
+;; Ref Links
 (defparameter *web-links*
   (list
    :main-css '(link (:rel "stylesheet" :href "css/main.css"))
@@ -33,4 +35,25 @@
 
 
 
-
+;; Bootstrap
+(defun bs-form (inputs buttons)
+  `(form (:class "form-horizontal" :role "form" :method "post" :onsubmit "return false")
+         ;; (icon type id placeholder)
+         ,@(loop for i in inputs
+              collect
+                (destructuring-bind (icon type id ph) i
+                  `(div (:class "form-group")
+                        (div (:class "input-group")
+                             (div (:class "input-group-addon")
+                                  (span (:class ,#?"glyphicon glyphicon-${icon}")))
+                             (input (:class "form-control"
+                                            :type ,type
+                                            :id ,id
+                                            :name ,id
+                                            :placeholder ,ph
+                                            :required "required"))))))
+         ,@(loop for i in buttons
+              collect
+                (destructuring-bind (type class id text) i
+                  `(div (:class "form-group")
+                        (button (:type ,type :id ,id :class ,class) ,text))))))

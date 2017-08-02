@@ -1,32 +1,10 @@
 (in-package :webtest.view)
 (load "layout")
-(interpol:enable-interpol-syntax)
-(cl-syntax:use-syntax :interpol)  
-
-
-(defun bs-form (inputs button)
-  `(form (:class "form-horizontal" :role "form" :method "post" :onsubmit "return false")
-         ;; (icon type id placeholder)
-         ,@(loop for i in inputs
-              collect
-                (destructuring-bind (icon type id ph) i
-                  `(div (:class "form-group")
-                        (div (:class "input-group")
-                             (div (:class "input-group-addon")
-                                  (span (:class ,#?"glyphicon glyphicon-${icon}")))
-                             (input (:class "form-control"
-                                            :type ,type
-                                            :id ,id
-                                            :name ,id
-                                            :placeholder ,ph
-                                            :required "required"))))))
-         (div (:class "form-group")
-              ,(destructuring-bind (class id text) button
-                 `(button (:type "submit" :id ,id :class ,class) ,text)))))
 
 (defparameter *register-html-content* 
-  ``((a (:href "/") "回到主页")
+  ``((a (:href "/") "回到首页")
      (a (:href "/login") "登录")
+     (hr)
      (div (:class "container")
           (div (:class "col-sm-offset-3  col-sm-6")
                (div (:class "panel panel-default")
@@ -36,7 +14,7 @@
                          ,(bs-form '(("user" "text" "username" "请输入用户名")
                                      ("lock" "password" "password" "请输入密码")
                                      ("lock" "password" "repassword" "请再次输入密码"))
-                                   '("btn btn-primary btn-block" "register" "注册"))))))))
+                                   '(("submit" "btn btn-primary btn-block" "register" "注册")))))))))
 
 (defparameter *register-js*
   (ps
@@ -45,10 +23,10 @@
           ($ "#register")
           (click
            (lambda ()
-             (let ((username (chain ($ "#username") (val)))
-                   (password (chain ($ "#password") (val)))
-                   (password1 (chain ($ "#repassword") (val))))
-               (if (/= password password1)
+             (let ((uname (chain ($ "#username") (val)))
+                   (pwd (chain ($ "#password") (val)))
+                   (repwd (chain ($ "#repassword") (val))))
+               (if (/= pwd repwd)
                    (progn
                      (chain
                       ($ "#password")
@@ -58,8 +36,8 @@
                       (css "border" "1px solid red")))
                    (progn
                      (var data
-                          (create :uname username
-                                  :upwd password))
+                          (create :uname uname
+                                  :upwd pwd))
                      (chain
                       $
                       (ajax (create
