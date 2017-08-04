@@ -13,19 +13,29 @@
                :envy
                :cl-ppcre
                :uiop
+               :cl-interpol
+               :cl-syntax-interpol
+               
                ;; for HTML CSS JS
                :plump
                :parenscript
-               :cl-interpol
-               :cl-syntax-interpol
+
+               ;; for @route annotation
+               ;; :cl-syntax-annot
+
                ;; for DB
                :datafly
+               :sxql
+
+               ;; Password hashing
+               :cl-pass
                )
   :components ((:module "src"
                 :components
                 ((:file "main" :depends-on ("config" "view" "db"))
-                 (:file "web" :depends-on ("view"))
+                 (:file "web" :depends-on ("view" "model"))
                  (:file "view" :depends-on ("config" "base"))
+                 (:file "model" :depends-on ("db"))
                  (:file "db" :depends-on ("config"))
                  (:file "base")
                  (:file "config"))))

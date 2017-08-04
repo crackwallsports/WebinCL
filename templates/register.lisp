@@ -47,13 +47,13 @@
                              success (lambda (data status)
                                        (if (= status "success")
                                            (setf (@ location href) "login")))
-                             error (lambda (data err)
+                             error (lambda (jqXHR textStatus errorThrown)
                                      (chain
                                       ($ ".panel-title")
-                                      (text "注册失败 重来"))
+                                      (text (+ "注册失败 重来" " : " (@ jqXHR response-text))))
                                      ;; (setf (@ location href) "register")
                                      ))))))))))))))
-  
+
 (defmacro register-page-mac ()
   `(html-template
     (layout-template)

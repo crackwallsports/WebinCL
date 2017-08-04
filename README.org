@@ -16,6 +16,8 @@
 - Run (-> http://localhost:30000)
   #+BEGIN_SRC lisp
 (ql:quickload :webtest)
+;; +
+(webtest.model:create-user-table)
 
 (webtest:start :port 30000) 
 ;; (webtest:start :server :hunchentoot :port 8080)
@@ -31,9 +33,10 @@
 ** Routes
 - Routes
   - 首页 index : /
-    - 登录 login : /login -> /home 
-      - 主页 home : /home -logout-> /
-    - 注册 register : /register -> /login
+    - -(logined)?-> /home
+  - 登录 login : /login -> /home 
+  - 注册 register : /register -> /login
+  - 主页 home : /home -logout-> /
 - [[src/web.lisp][src/web.lisp]]
 - Learn Test
   #+BEGIN_SRC lisp
@@ -113,7 +116,88 @@
 - [[./templates/index.lisp][index.lisp]]
 - [[./templates/register.lisp][register.lisp]]
 ** DB
-- src/db.lisp
+- ^ src/config.lisp : change maindb
+  #+BEGIN_SRC lisp
+(defconfig :common
+`(:databases ((:maindb :web
+                       :database-name "testdb"
+                       :username "me"
+                       :password "123"))))
+  #+END_SRC
+- + [[./src/model.lisp][src/model.lisp]]
+  #+BEGIN_SRC lisp
+(in-package :cl-user)
+(defpackage webtest.model
+  (:use :cl :sxql)
+  (:import-from :webtest.db
+                :db
+                :with-connection
+                :with-transaction) 
+  (:import-from :datafly
+                :execute
+                :retrieve-all
+                :retrieve-one)
+  (:export :create-user-table
+           :find-user
+           :add-user
+           :auth-user))
+
+(in-package :webtest.model)
+
+(defun create-user-table ()
+  "Create user table if it doesn't exist yet."
+  (with-connection (db)
+    (execute
+     (create-table (:user :if-not-exists t)
+         ((id :type 'serial :primary-key t)
+          (username :type 'text :not-null t :unique t)
+          (password :type 'text :not-null t))))))
+
+(defun add-user (uname pwd)
+  "add user record to database."
+  (with-connection (db)
+    (execute
+     (insert-into :user
+       (set= :username uname            
+             :password (cl-pass:hash pwd))))))
+
+(defun find-user (uname)
+  "lookup user record by username."
+  (with-connection (db)
+    (retrieve-one
+     (select :*
+       (from :user)
+       (where (:= :username uname))))))
+
+(defun auth-user (uname pwd)
+  (let ((pwd-hash (getf (find-user uname) :password)))
+    (if pwd-hash 
+        (values (cl-pass:check-password pwd pwd-hash) uname)
+        (values nil nil))))
+  #+END_SRC
+- MAYBE: ^ [[./src/db.lisp][src/db.lisp]]
+  #+BEGIN_SRC lisp
+;; (defmacro with-transaction (conn &body body)
+;;   `(let ((*connection* ,conn))
+;;      (cl-dbi:with-transaction *connection*
+;;        ,@body)))
+
+  #+END_SRC
+
+
+*** SQL
+- PostgreSQL
+  #+BEGIN_SRC sh
+createdb testdb
+psql testdb
+testdb=# CREATE USER me WITH PASSWORD '123';
+testdb=# GRANT ALL PRIVILEGES ON DATABASE testdb TO me;  
+  #+END_SRC
+*** noSQL
+- MongoDB
+* Ref 
+- [[https://leanpub.com/fullstacklisp/read][Full Stack Lisp]]
+- [[http://ahungry.com/blog/2015-07-07-Writing-a-Common-Lisp-Web-App.html][Writing a Common Lisp Web App in caveman2]]
 
 * Copyright
 
